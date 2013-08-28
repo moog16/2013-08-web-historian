@@ -1,6 +1,7 @@
 var path = require('path');
 var url = require('url');
 var fs = require('fs');
+var _ = require('./underscore.js');
 module.exports.datadir = path.join(__dirname, "../data/sites.txt"); // tests will need to override this.
 
 module.exports.handleRequest = function (req, res) {
@@ -8,14 +9,15 @@ module.exports.handleRequest = function (req, res) {
   console.log("Serving request type " + req.method + " for url " + req.url);
   var parsedURL = url.parse(req.url).pathname.split("/");
   console.log("Parsed URL: ", parsedURL);
+  var mainRootArray = __dirname.split("/");
+  var mainRoot = mainRootArray.slice(0,mainRootArray.length-1).join("/");
+  if (req.method === 'GET') {
   if(req.url === '/') {
     req.url = '/index.html';
   }
   fs.readFile(__dirname+'/public'+req.url, 
     function(err,data) {
       if (err) {
-        var mainRootArray = __dirname.split("/");
-        var mainRoot = mainRootArray.slice(0,mainRootArray.length-1).join("/");
         console.log('Trying to find a file at '+mainRoot+'/data/sites/'+req.url);
         fs.readFile(mainRoot+'/data/sites/'+req.url, 
           function(err,data) {
@@ -32,5 +34,32 @@ module.exports.handleRequest = function (req, res) {
       res.writeHead(200);
       res.end(data);
     });
+  } else if (req.method === 'POST') {
+    var urlData = '';
+    req.on('data', function(chunk) {
+      urlData += chunk;
+    });
+    var thisUrl;
+    req.on('end', function() {
+      thisUrl = urlData.split('=').pop();
+      var websites;
+      fs.readFile(mainRoot+'/data/sites.txt', function(err, data) {
+        websites = data.toString();
+        websites = websites.split('\n');
+        // console.log('websites: ' + websites.split('\n'));
+        websites = _.uniq(websites);
+        console.log('this is the second line: '+websites);
+        websites = websites.join('\n');
+        console.log(websites);
+      });
+      // fs.writeFile(mainRoot+'/data/sites.txt', websites, function(err) {
+      //   if(err) {
+      //     throw err;
+      //   }
+      // });
+      res.writeHead(201);
+      res.end();
+    });
+  }
 };
 
