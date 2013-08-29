@@ -42,21 +42,16 @@ module.exports.handleRequest = function (req, res) {
     var thisUrl;
     req.on('end', function() {
       thisUrl = urlData.split('=').pop();
-      var websites;
-      fs.readFile(mainRoot+'/data/sites.txt', function(err, data) {
-        websites = data.toString();
-        websites = websites.split('\n');
-        // console.log('websites: ' + websites.split('\n'));
-        websites = _.uniq(websites);
-        console.log('this is the second line: '+websites);
-        websites = websites.join('\n');
-        console.log(websites);
+
+      var websiteData = fs.readFileSync(mainRoot+'/data/sites.txt');
+      var sites = websiteData.toString() + '\n' + thisUrl;
+      sites = _.uniq(sites.split('\n')).join('\n');      
+      
+      fs.writeFile(mainRoot+'/data/sites.txt', sites, function(err) {
+        if(err) {
+          throw err;
+        }
       });
-      // fs.writeFile(mainRoot+'/data/sites.txt', websites, function(err) {
-      //   if(err) {
-      //     throw err;
-      //   }
-      // });
       res.writeHead(201);
       res.end();
     });
