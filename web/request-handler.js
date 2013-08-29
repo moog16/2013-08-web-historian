@@ -43,17 +43,16 @@ module.exports.handleRequest = function (req, res) {
     req.on('end', function() {
       thisUrl = urlData.split('=').pop();
 
-      var websiteData = fs.readFileSync(mainRoot+'/data/sites.txt');
-      var sites = websiteData.toString() + '\n' + thisUrl;
+      var websiteData = fs.readFileSync(mainRoot+'/data/sites.txt', 'utf8');
+      if(websiteData.length !== 0) {
+        websiteData += '\n';
+      }
+      var sites = websiteData + thisUrl + '\n';
       sites = _.uniq(sites.split('\n')).join('\n');      
       
-      fs.writeFile(mainRoot+'/data/sites.txt', sites, function(err) {
-        if(err) {
-          throw err;
-        }
-      });
-      res.writeHead(201);
-      res.end();
+      fs.writeFileSync(mainRoot+'/data/sites.txt', sites);
+      res.writeHead(302);
+      res.end(thisUrl);
     });
   }
 };

@@ -48,6 +48,7 @@ describe("Node Server Request Listener Function", function() {
     handler.handleRequest(req, res);
 
     var fileContents = fs.readFileSync(handler.datadir, 'utf8');
+    console.log(fileContents);
     expect(res._responseCode).toEqual(302);
     expect(fileContents).toEqual(url + "\n");
     expect(res._ended).toEqual(true);
