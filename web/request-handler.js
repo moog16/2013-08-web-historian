@@ -5,7 +5,6 @@ var _ = require('./underscore.js');
 module.exports.datadir = path.join(__dirname, "../data/sites.txt"); // tests will need to override this.
 
 module.exports.handleRequest = function (req, res) {
-  //console.log(exports.datadir);
   console.log("Serving request type " + req.method + " for url " + req.url);
   var parsedURL = url.parse(req.url).pathname.split("/");
   console.log("Parsed URL: ", parsedURL);
